@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Badge, Dropdown, Table, useTheme } from "flowbite-react";
 import type { FC } from "react";
+import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import NavbarSidebarLayout from "../layouts/navbar-sidebar";
+import axios from "axios";
 
 const DashboardPage: FC = function () {
   return (
@@ -20,66 +22,66 @@ const DashboardPage: FC = function () {
     </NavbarSidebarLayout>
   );
 };
+interface RevenueData {
+  date: string;
+  total: number;
+}
+
+interface Intervals {
+  interval: String;
+  setInterval: React.Dispatch<React.SetStateAction<String>>;
+}
 
 const SalesThisWeek: FC = function () {
+
+  const [data, setData] = useState<RevenueData[] | null>(null);
+  const [interval, setInterval] = useState<String >("week");
+
+  useEffect(() => {
+    async function fetchRevenue() {
+      try {
+        const response = await axios.get(`/v1/admin/income/${interval}`);
+        // console.log(response.data);
+        setData(response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetchRevenue();
+  }, [interval]);
+
+  useEffect(() => {
+    console.log(interval);
+  }, [interval]);
+
   return (
     <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 sm:p-6 xl:p-8">
       <div className="mb-4 flex items-center justify-between">
         <div className="shrink-0">
           <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white sm:text-3xl">
-            $45,385
+            {data && data.reduce((acc, day) => acc + day.total, 0).toLocaleString('vi-VN')} VND
           </span>
           <h3 className="text-base font-normal text-gray-600 dark:text-gray-400">
-            Sales this week
+            Sales this {interval}
           </h3>
         </div>
-        <div className="flex flex-1 items-center justify-end text-base font-bold text-green-600 dark:text-green-400">
-          12.5%
-          <svg
-            className="h-5 w-5"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
       </div>
-      <SalesChart />
+      <SalesChart data={data} />
       <div className="mt-5 flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6">
-        <Datepicker />
-        <div className="shrink-0">
-          <a
-            href="#"
-            className="inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700 sm:text-sm"
-          >
-            Sales Report
-            <svg
-              className="ml-1 h-4 w-4 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </a>
-        </div>
+        <Datepicker interval={interval} setInterval={setInterval}/>
       </div>
     </div>
   );
 };
 
-const SalesChart: FC = function () {
+interface SalesChartProps {
+  data: RevenueData[] | null;
+}
+
+const SalesChart: FC<SalesChartProps> = ({ data }) => {
+  if (!data) {
+    return <div>Loading...</div>;
+  }
   const { mode } = useTheme();
   const isDarkTheme = mode === "dark";
 
@@ -135,15 +137,7 @@ const SalesChart: FC = function () {
       },
     },
     xaxis: {
-      categories: [
-        "01 Feb",
-        "02 Feb",
-        "03 Feb",
-        "04 Feb",
-        "05 Feb",
-        "06 Feb",
-        "07 Feb",
-      ],
+      categories: data.map((day) => day.date),
       labels: {
         style: {
           colors: [labelColor],
@@ -175,7 +169,7 @@ const SalesChart: FC = function () {
           fontWeight: 500,
         },
         formatter: function (value) {
-          return "$" + value;
+          return value.toLocaleString('vi-VN');
         },
       },
     },
@@ -203,10 +197,11 @@ const SalesChart: FC = function () {
       },
     ],
   };
+  const revenueData = data.map((day) => day.total);
   const series = [
     {
       name: "Revenue",
-      data: [6356, 6218, 6156, 6526, 6356, 6256, 6056],
+      data: revenueData,
       color: "#1A56DB",
     },
   ];
@@ -214,21 +209,16 @@ const SalesChart: FC = function () {
   return <Chart height={420} options={options} series={series} type="area" />;
 };
 
-const Datepicker: FC = function () {
+const Datepicker: FC<Intervals> = ({ interval, setInterval })=> {
+
   return (
     <span className="text-sm text-gray-600">
-      <Dropdown inline label="Last 7 days">
-        <Dropdown.Item>
-          <strong>Sep 16, 2021 - Sep 22, 2021</strong>
-        </Dropdown.Item>
+      <Dropdown inline label={interval == "week" ? "Tuần này" : interval == "month" ? "Tháng này" : "Năm này"}>
         <Dropdown.Divider />
-        <Dropdown.Item>Yesterday</Dropdown.Item>
-        <Dropdown.Item>Today</Dropdown.Item>
-        <Dropdown.Item>Last 7 days</Dropdown.Item>
-        <Dropdown.Item>Last 30 days</Dropdown.Item>
-        <Dropdown.Item>Last 90 days</Dropdown.Item>
-        <Dropdown.Divider />
-        <Dropdown.Item>Custom...</Dropdown.Item>
+        <Dropdown.Item onClick={()=>{setInterval("week")}}>Tuần này</Dropdown.Item>
+        <Dropdown.Item onClick={()=>{setInterval("month")}}>Tháng này</Dropdown.Item>
+        <Dropdown.Item>Quý này</Dropdown.Item>
+        <Dropdown.Item>Năm này</Dropdown.Item>
       </Dropdown>
     </span>
   );
@@ -364,28 +354,6 @@ const LatestCustomers: FC = function () {
       </div>
       <div className="flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6">
         <Datepicker />
-        <div className="shrink-0">
-          <a
-            href="#"
-            className="inline-flex items-center rounded-lg p-2 text-xs font-medium uppercase text-primary-700 hover:bg-gray-100 dark:text-primary-500 dark:hover:bg-gray-700 sm:text-sm"
-          >
-            Sales Report
-            <svg
-              className="ml-1 h-4 w-4 sm:h-5 sm:w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </a>
-        </div>
       </div>
     </div>
   );

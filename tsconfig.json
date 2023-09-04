@@ -27,5 +27,5 @@
     "types": ["vite/client"]
   },
   "exclude": ["node_modules"],
-  "include": ["**/*.cjs", "**/*.mjs", "**/*.ts", "**/*.tsx"]
+  "include": ["**/*.cjs", "**/*.mjs", "**/*.ts", "**/*.tsx", "src/contexts/AdminAuthContext.tsx", "src/pages/authentication/sign-in.tsx"]
 }

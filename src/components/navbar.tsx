@@ -1,7 +1,35 @@
 import type { FC } from "react";
 import { Button, DarkThemeToggle, Navbar } from "flowbite-react";
+import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AdminAuthContext";
+import { useNavigate } from "react-router-dom";
+
 
 const ExampleNavbar: FC = function () {
+  const auth = useContext(AuthContext);
+
+  if (!auth) {
+    throw new Error("context may be null");
+  }
+
+  const { userInfo, setUserInfo } = auth;
+
+  const navigate = useNavigate();
+
+  async function handleLogOut(e:any) {
+    e.preventDefault();
+    try {
+      await axios.post("/v1/auth/logout");
+      setUserInfo(null);
+      console.log("logout successful");
+      navigate("/login")
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+
   return (
     <Navbar fluid>
       <div className="w-full p-3 lg:px-5 lg:pl-3">
@@ -15,15 +43,9 @@ const ExampleNavbar: FC = function () {
             </Navbar.Brand>
           </div>
           <div className="flex items-center gap-3">
-            <iframe
-              height="30"
-              src="https://ghbtns.com/github-btn.html?user=themesberg&repo=flowbite-react-admin-dashboard&type=star&count=true&size=large"
-              title="GitHub"
-              width="90"
-              className="hidden sm:block"
-            />
-            <Button color="primary" href="https://flowbite.com/pro/">
-              Upgrade to Pro
+            <h2>hi, {userInfo && userInfo.username}</h2>
+            <Button color="primary" onClick={handleLogOut}>
+              Log out
             </Button>
             <DarkThemeToggle />
           </div>

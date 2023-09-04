@@ -12,6 +12,7 @@ import {
   HiShoppingBag,
   HiUsers,
 } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 const ExampleSidebar: FC = function () {
   const [currentPage, setCurrentPage] = useState("");
@@ -38,16 +39,14 @@ const ExampleSidebar: FC = function () {
           <Sidebar.Items>
             <Sidebar.ItemGroup>
               <Sidebar.Item
-                href="/"
                 icon={HiChartPie}
                 className={
-                  "/" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
+                  "/dashboard" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
                 }
               >
-                Dashboard
+                <Link to="/dashboard">Dashboard</Link>
               </Sidebar.Item>
               <Sidebar.Item
-                href="/e-commerce/products"
                 icon={HiShoppingBag}
                 className={
                   "/e-commerce/products" === currentPage
@@ -55,10 +54,9 @@ const ExampleSidebar: FC = function () {
                     : ""
                 }
               >
-                Products
+                <Link to="/e-commerce/products">Product</Link>
               </Sidebar.Item>
               <Sidebar.Item
-                href="/users/list"
                 icon={HiUsers}
                 className={
                   "/users/list" === currentPage
@@ -66,7 +64,7 @@ const ExampleSidebar: FC = function () {
                     : ""
                 }
               >
-                Users list
+                <Link to="/users/list">User List</Link>
               </Sidebar.Item>
               <Sidebar.Item href="/authentication/sign-in" icon={HiLogin}>
                 Sign in
