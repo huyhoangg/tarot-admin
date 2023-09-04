@@ -41,7 +41,7 @@ const SalesThisWeek: FC = function () {
     async function fetchRevenue() {
       try {
         const response = await axios.get(`/v1/admin/income/${interval}`);
-        // console.log(response.data);
+        console.log(response.data);
         setData(response.data);
       } catch (e) {
         console.log(e);
