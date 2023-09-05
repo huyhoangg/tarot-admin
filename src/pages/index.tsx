@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import { Badge, Dropdown, Table, useTheme } from "flowbite-react";
+import { Badge, Dropdown, Table, useTheme, Card } from "flowbite-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
@@ -12,6 +12,7 @@ const DashboardPage: FC = function () {
       <div className="px-4 pt-6">
         <SalesThisWeek />
         <div className="my-6">
+          <RevenueCard />
           <LatestTransactions />
         </div>
         <LatestCustomers />
@@ -542,6 +543,48 @@ const AcquisitionOverview: FC = function () {
     </div>
   );
 };
+
+const RevenueCard: FC = function () {
+  const [data, setData] = useState<any | null>(null);
+
+  useEffect(() => {
+    async function fetchRevenue() {
+      try {
+        const response = await axios.get(`/v1/admin/income/year`);
+        setData(response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetchRevenue();
+  }, []);
+  return (
+    <Card
+      className="max-w-sm mb-6"
+      href="#"
+    >
+      <div className="flex items-center p-4 rounded-md shadow dark:bg-gray-900 ">
+        <div className="mr-4">
+            <span
+                className="inline-block p-4 mr-2 text-blue-600 bg-blue-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-6 h-6 bi bi-bag-check" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10.854 8.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708 0z">
+                    </path>
+                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z">
+                    </path>
+                </svg>
+            </span>
+        </div>
+        <div>
+            <p className="mb-2 text-gray-700 dark:text-gray-400">Doanh thu trong năm</p>
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-400">
+                {data && data.total.toLocaleString('vi-VN')} VND</h2>
+        </div>
+    </div>
+    </Card>
+    
+  )
+}
 
 const LatestTransactions: FC = function () {
   return (
