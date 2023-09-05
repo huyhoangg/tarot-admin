@@ -38,34 +38,43 @@ const ExampleSidebar: FC = function () {
           </form>
           <Sidebar.Items>
             <Sidebar.ItemGroup>
-              <Sidebar.Item
-                icon={HiChartPie}
-                className={
-                  "/dashboard" === currentPage ? "bg-gray-100 dark:bg-gray-700" : ""
-                }
-              >
-                <Link to="/dashboard">Dashboard</Link>
-              </Sidebar.Item>
-              <Sidebar.Item
-                icon={HiShoppingBag}
-                className={
-                  "/e-commerce/products" === currentPage
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : ""
-                }
-              >
-                <Link to="/e-commerce/products">Product</Link>
-              </Sidebar.Item>
-              <Sidebar.Item
-                icon={HiUsers}
-                className={
-                  "/users/list" === currentPage
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : ""
-                }
-              >
-                <Link to="/users/list">User List</Link>
-              </Sidebar.Item>
+              <Link to="/dashboard">
+                <Sidebar.Item
+                  icon={HiChartPie}
+                  className={
+                    "/dashboard" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  Dashboard
+                </Sidebar.Item>
+              </Link>
+              <Link to="/e-commerce/products">
+                <Sidebar.Item
+                  icon={HiShoppingBag}
+                  className={
+                    "/e-commerce/products" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  Product
+                </Sidebar.Item>
+              </Link>
+              <Link to="/users/list">
+                <Sidebar.Item
+                  icon={HiUsers}
+                  className={
+                    "/users/list" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }
+                >
+                  User List
+                </Sidebar.Item>
+              </Link>
+
               <Sidebar.Item href="/authentication/sign-in" icon={HiLogin}>
                 Sign in
               </Sidebar.Item>

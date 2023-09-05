@@ -34,6 +34,7 @@ function App() {
             element={userInfo ? <EcommerceProductsPage /> : <SignInPage />}
           />
           <Route path="/users/list" element={<UserListPage />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </Flowbite>

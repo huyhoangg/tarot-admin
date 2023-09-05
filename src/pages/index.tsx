@@ -10,9 +10,13 @@ const DashboardPage: FC = function () {
   return (
     <NavbarSidebarLayout>
       <div className="px-4 pt-6">
+        <div className="flex justify-between">
+          <OrderCard />
+          <RevenueCard />
+          <UserCountCard />
+        </div>
         <SalesThisWeek />
         <div className="my-6">
-          <RevenueCard />
           <LatestTransactions />
         </div>
         <LatestCustomers />
@@ -34,9 +38,8 @@ interface Intervals {
 }
 
 const SalesThisWeek: FC = function () {
-
   const [data, setData] = useState<RevenueData[] | null>(null);
-  const [interval, setInterval] = useState<String >("week");
+  const [interval, setInterval] = useState<String>("week");
 
   useEffect(() => {
     async function fetchRevenue() {
@@ -60,7 +63,11 @@ const SalesThisWeek: FC = function () {
       <div className="mb-4 flex items-center justify-between">
         <div className="shrink-0">
           <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white sm:text-3xl">
-            {data && data.reduce((acc, day) => acc + day.total, 0).toLocaleString('vi-VN')} VND
+            {data &&
+              data
+                .reduce((acc, day) => acc + day.total, 0)
+                .toLocaleString("vi-VN")}{" "}
+            VND
           </span>
           <h3 className="text-base font-normal text-gray-600 dark:text-gray-400">
             Sales this {interval}
@@ -69,7 +76,7 @@ const SalesThisWeek: FC = function () {
       </div>
       <SalesChart data={data} />
       <div className="mt-5 flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6">
-        <Datepicker interval={interval} setInterval={setInterval}/>
+        <Datepicker interval={interval} setInterval={setInterval} />
       </div>
     </div>
   );
@@ -170,7 +177,7 @@ const SalesChart: FC<SalesChartProps> = ({ data }) => {
           fontWeight: 500,
         },
         formatter: function (value) {
-          return value.toLocaleString('vi-VN');
+          return value.toLocaleString("vi-VN");
         },
       },
     },
@@ -210,16 +217,33 @@ const SalesChart: FC<SalesChartProps> = ({ data }) => {
   return <Chart height={420} options={options} series={series} type="area" />;
 };
 
-const Datepicker: FC<Intervals> = ({ interval, setInterval })=> {
-
+const Datepicker: FC<Intervals> = ({ interval, setInterval }) => {
   return (
     <span className="text-sm text-gray-600">
-      <Dropdown inline label={interval == "week" ? "Tuần này" : interval == "month" ? "Tháng này" : "Năm này"}>
-        <Dropdown.Divider />
-        <Dropdown.Item onClick={()=>{setInterval("week")}}>Tuần này</Dropdown.Item>
-        <Dropdown.Item onClick={()=>{setInterval("month")}}>Tháng này</Dropdown.Item>
-        <Dropdown.Item>Quý này</Dropdown.Item>
-        <Dropdown.Item>Năm này</Dropdown.Item>
+      <Dropdown
+        inline
+        label={
+          interval == "week"
+            ? "Tuần này"
+            : interval == "month"
+            ? "Tháng này"
+            : "Năm này"
+        }
+      >
+        <Dropdown.Item
+          onClick={() => {
+            setInterval("week");
+          }}
+        >
+          Tuần này
+        </Dropdown.Item>
+        <Dropdown.Item
+          onClick={() => {
+            setInterval("month");
+          }}
+        >
+          Tháng này
+        </Dropdown.Item>
       </Dropdown>
     </span>
   );
@@ -544,6 +568,54 @@ const AcquisitionOverview: FC = function () {
   );
 };
 
+const OrderCard: FC = function () {
+  const [data, setData] = useState<any | null>(null);
+
+  useEffect(() => {
+    async function fetchRevenue() {
+      try {
+        const response = await axios.get(`/v1/admin/totalOrder`);
+        setData(response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetchRevenue();
+  }, []);
+  return (
+    <Card className="min-w-[25rem] mb-6">
+      <div className="flex items-center p-4 rounded-md shadow dark:bg-gray-900 ">
+        <div className="mr-4">
+          <span className="inline-block p-4 mr-2 text-blue-600 bg-blue-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="w-6 h-6 bi bi-bag-check"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.854 8.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708 0z"
+              ></path>
+              <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"></path>
+            </svg>
+          </span>
+        </div>
+        <div>
+          <p className="mb-2 text-gray-700 dark:text-gray-400">
+            Tổng số đơn hàng
+          </p>
+          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-400 text-center">
+            {data && data.total}
+          </h2>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 const RevenueCard: FC = function () {
   const [data, setData] = useState<any | null>(null);
 
@@ -559,32 +631,78 @@ const RevenueCard: FC = function () {
     fetchRevenue();
   }, []);
   return (
-    <Card
-      className="max-w-sm mb-6"
-      href="#"
-    >
+    <Card className="min-w-[25rem] mb-6">
       <div className="flex items-center p-4 rounded-md shadow dark:bg-gray-900 ">
         <div className="mr-4">
-            <span
-                className="inline-block p-4 mr-2 text-blue-600 bg-blue-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="w-6 h-6 bi bi-bag-check" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M10.854 8.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708 0z">
-                    </path>
-                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z">
-                    </path>
-                </svg>
-            </span>
+          <span className="inline-block p-4 mr-2 text-blue-600 bg-blue-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="w-6 h-6 bi bi-currency-dollar"
+              viewBox="0 0 16 16"
+            >
+              <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718H4zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73l.348.086z"></path>
+            </svg>
+          </span>
         </div>
         <div>
-            <p className="mb-2 text-gray-700 dark:text-gray-400">Doanh thu trong năm</p>
-            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-400">
-                {data && data.total.toLocaleString('vi-VN')} VND</h2>
+          <p className="mb-2 text-gray-700 dark:text-gray-400">
+            Doanh thu trong năm
+          </p>
+          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-400">
+            {data && data.total.toLocaleString("vi-VN")} VND
+          </h2>
         </div>
-    </div>
+      </div>
     </Card>
-    
-  )
-}
+  );
+};
+
+const UserCountCard: FC = function () {
+  const [data, setData] = useState<any | null>(null);
+
+  useEffect(() => {
+    async function fetchRevenue() {
+      try {
+        const response = await axios.get(`/v1/admin/totalUser`);
+        setData(response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    fetchRevenue();
+  }, []);
+  return (
+    <Card className="min-w-[25rem] mb-6">
+      <div className="flex items-center p-4 rounded-md shadow dark:bg-gray-900 ">
+        <div className="mr-4">
+          <span className="inline-block p-4 mr-2 text-blue-600 bg-blue-100 rounded-full dark:text-gray-400 dark:bg-gray-700">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="w-6 h-6 bi bi-people"
+              viewBox="0 0 16 16"
+            >
+              <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816zM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275zM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"></path>
+            </svg>
+          </span>
+        </div>
+        <div>
+          <p className="mb-2 text-gray-700 dark:text-gray-400">
+            Tổng số khách hàng
+          </p>
+          <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-400 text-center">
+            {data && data.total}
+          </h2>
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 const LatestTransactions: FC = function () {
   return (
