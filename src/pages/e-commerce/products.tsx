@@ -253,6 +253,7 @@ const EditProductModal: FC<any> = function ({ product }) {
   const [productInfo, setProductInfo] = useState(product);
   const [categories, setCategories] = useState(product.category);
   const [allCategories, setAllCategories] = useState<any>(null);
+  const [errLog, setErrLog] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -280,6 +281,26 @@ const EditProductModal: FC<any> = function ({ product }) {
     }
   };
 
+  const handleUpdateProduct = async (prod) => {
+    try {
+      const response = await axios.post("/v1/admin/updateProduct/", {
+        productInfo: prod,
+      });
+      if (response.data == "updated") {
+        setErrLog(response.data);
+      } else {
+        setErrLog("error");
+      }
+    } catch (e) {
+      setErrLog("error");
+    }
+  };
+
+  const handleRemoveImg = async (link) => {
+    const updatedIds = productInfo.imageURLs.filter((id) => id !== link);
+    setProductInfo((prev) => ({ ...prev, imageURLs: updatedIds }));
+  };
+
   useEffect(() => {
     if (isOpen) {
       console.log("change:", product);
@@ -292,7 +313,14 @@ const EditProductModal: FC<any> = function ({ product }) {
         <HiPencilAlt className="mr-2 text-lg" />
         Edit item
       </Button>
-      <Modal onClose={() => setOpen(false)} show={isOpen}>
+      <Modal
+        onClose={() => {
+          setProductInfo(product);
+          setCategories(product.category);
+          setOpen(false);
+        }}
+        show={isOpen}
+      >
         <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
           <strong>Edit product</strong>
         </Modal.Header>
@@ -304,9 +332,14 @@ const EditProductModal: FC<any> = function ({ product }) {
                 <TextInput
                   id="productName"
                   name="productName"
-                  placeholder='Apple iMac 27"'
                   className="mt-1"
                   value={productInfo.name}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -337,6 +370,12 @@ const EditProductModal: FC<any> = function ({ product }) {
                   placeholder="Apple"
                   className="mt-1"
                   value={productInfo.type}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      type: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -347,6 +386,12 @@ const EditProductModal: FC<any> = function ({ product }) {
                   placeholder="$2300"
                   className="mt-1"
                   value={productInfo.author}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      author: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="lg:col-span-2">
@@ -358,42 +403,31 @@ const EditProductModal: FC<any> = function ({ product }) {
                   rows={6}
                   className="mt-1"
                   value={productInfo.describe}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      describe: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div className="flex space-x-5">
-                <div>
-                  <img
-                    alt="Apple iMac 1"
-                    src="/images/products/apple-imac-1.png"
-                    className="h-24"
-                  />
-                  <a href="#" className="cursor-pointer">
-                    <span className="sr-only">Delete</span>
-                    <HiTrash className="-mt-5 text-2xl text-red-600" />
-                  </a>
-                </div>
-                <div>
-                  <img
-                    alt="Apple iMac 2"
-                    src="/images/products/apple-imac-2.png"
-                    className="h-24"
-                  />
-                  <a href="#" className="cursor-pointer">
-                    <span className="sr-only">Delete</span>
-                    <HiTrash className="-mt-5 text-2xl text-red-600" />
-                  </a>
-                </div>
-                <div>
-                  <img
-                    alt="Apple iMac 3"
-                    src="/images/products/apple-imac-3.png"
-                    className="h-24"
-                  />
-                  <a href="#" className="cursor-pointer">
-                    <span className="sr-only">Delete</span>
-                    <HiTrash className="-mt-5 text-2xl text-red-600" />
-                  </a>
-                </div>
+                {productInfo.imageURLs.map((imglink) => (
+                  <div>
+                    <img
+                      alt="Apple iMac 1"
+                      src={imglink}
+                      className="w-20 h-16 rounded-lg border  object-contain"
+                    />
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => handleRemoveImg(imglink)}
+                    >
+                      <span className="sr-only">Delete</span>
+                      <HiTrash className="-mt-5 text-2xl text-red-600" />
+                    </div>
+                  </div>
+                ))}
               </div>
               <div className="lg:col-span-2">
                 <div className="flex w-full items-center justify-center">
@@ -415,9 +449,13 @@ const EditProductModal: FC<any> = function ({ product }) {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button color="primary" onClick={() => setOpen(false)}>
+          <Button
+            color="primary"
+            onClick={() => handleUpdateProduct(productInfo)}
+          >
             Save all
           </Button>
+          {errLog && <h1 className="text-red-400 text-sm">{errLog}</h1>}
         </Modal.Footer>
       </Modal>
     </>
