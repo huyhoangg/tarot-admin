@@ -8,6 +8,7 @@ import {
   Label,
   Modal,
   Select,
+  Spinner,
   Table,
   Textarea,
   TextInput,
@@ -254,6 +255,14 @@ const EditProductModal: FC<any> = function ({ product }) {
   const [categories, setCategories] = useState(product.category);
   const [allCategories, setAllCategories] = useState<any>(null);
   const [errLog, setErrLog] = useState("");
+  const [file, setFile] = useState([]);
+
+  function handleFiles(e) {
+    console.log(e.target.files);
+    const files = e.target.files;
+    setFile(Array.from(files));
+    // setFile(URL.createObjectURL(e.target.files[0]));
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -281,17 +290,63 @@ const EditProductModal: FC<any> = function ({ product }) {
     }
   };
 
+  const uploadImagesToCloudinary = async (images) => {
+    setErrLog("clicked");
+
+    const uploadedUrls = [];
+
+    // Loop through the selected images
+    for (const image of images) {
+      const data = new FormData();
+      data.append("file", image);
+      data.append("upload_preset", "kdbr5ygr");
+      data.append("cloud_name", "difzzraqj");
+
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/difzzraqj/image/upload`,
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+        const res = await response.json();
+        console.log(res);
+        uploadedUrls.push(res.secure_url);
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+        // Handle the error here
+      }
+    }
+
+    // uploadedUrls will contain an array of uploaded image URLs
+    return uploadedUrls;
+  };
+
   const handleUpdateProduct = async (prod) => {
     try {
+      const uploadedUrls = await uploadImagesToCloudinary(file);
+
+      console.log("Uploaded URLs: ", uploadedUrls);
+
+      const catIds = categories.map((cat) => cat._id);
+      const updatedProductInfo = {
+        ...prod,
+        imageURLs: [...prod.imageURLs, ...uploadedUrls],
+        category: catIds,
+      };
+
       const response = await axios.post("/v1/admin/updateProduct/", {
-        productInfo: prod,
+        productInfo: updatedProductInfo,
       });
-      if (response.data == "updated") {
+
+      if (response.data === "updated") {
         setErrLog(response.data);
       } else {
         setErrLog("error");
       }
-    } catch (e) {
+    } catch (error) {
+      console.error("Error updating product:", error);
       setErrLog("error");
     }
   };
@@ -303,7 +358,7 @@ const EditProductModal: FC<any> = function ({ product }) {
 
   useEffect(() => {
     if (isOpen) {
-      console.log("change:", product);
+      console.log("change:", categories);
     }
   }, [categories]);
 
@@ -411,13 +466,13 @@ const EditProductModal: FC<any> = function ({ product }) {
                   }
                 />
               </div>
-              <div className="flex space-x-5">
+              <div className="flex justify-between">
                 {productInfo.imageURLs.map((imglink) => (
                   <div>
                     <img
                       alt="Apple iMac 1"
                       src={imglink}
-                      className="w-20 h-16 rounded-lg border  object-contain"
+                      className="w-25 h-16 rounded-lg border  object-cover"
                     />
                     <div
                       className="cursor-pointer"
@@ -428,6 +483,9 @@ const EditProductModal: FC<any> = function ({ product }) {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="flex flex-col-reverse">
+                <h1>to upload : {file.length} files chosen</h1>
               </div>
               <div className="lg:col-span-2">
                 <div className="flex w-full items-center justify-center">
@@ -441,7 +499,12 @@ const EditProductModal: FC<any> = function ({ product }) {
                         PNG, JPG, GIF up to 10MB
                       </p>
                     </div>
-                    <input type="file" className="hidden" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={handleFiles}
+                      multiple
+                    />
                   </label>
                 </div>
               </div>
@@ -455,7 +518,11 @@ const EditProductModal: FC<any> = function ({ product }) {
           >
             Save all
           </Button>
-          {errLog && <h1 className="text-red-400 text-sm">{errLog}</h1>}
+          {errLog == "clicked" ? (
+            <Spinner aria-label="Default status example" />
+          ) : (
+            <h1 className="text-red-400 text-sm">{errLog}</h1>
+          )}
         </Modal.Footer>
       </Modal>
     </>
