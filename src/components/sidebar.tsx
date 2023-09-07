@@ -12,6 +12,9 @@ import {
   HiShoppingBag,
   HiUsers,
 } from "react-icons/hi";
+import { Dropdown } from 'flowbite-react';
+import {FaFileInvoiceDollar,FaGifts} from "react-icons/fa"
+import {MdLoyalty} from "react-icons/md"
 import { Link } from "react-router-dom";
 
 const ExampleSidebar: FC = function () {
@@ -22,7 +25,7 @@ const ExampleSidebar: FC = function () {
 
     setCurrentPage(newPage);
   }, [setCurrentPage]);
-
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example">
       <div className="flex h-full flex-col justify-between py-2">
@@ -74,13 +77,30 @@ const ExampleSidebar: FC = function () {
                   User List
                 </Sidebar.Item>
               </Link>
+              <Link to="/users/invoice">
+              <Sidebar.Item  icon={FaFileInvoiceDollar} className={
+                    "/users/invoice" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }>
+                Invoices
+              </Sidebar.Item>
+              </Link>
+             
+              <Sidebar.Item
+              icon={MdLoyalty}
+             
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              Loyalty
+              {dropdownOpen && (
+                <ul>
+                <Sidebar.Item><Link to="/e-commerce/voucher"> Voucher </Link></Sidebar.Item>
+                <Sidebar.Item><Link to="/e-commerce/reward">Reward</Link></Sidebar.Item>
+                </ul>
+              )}
+            </Sidebar.Item>
 
-              <Sidebar.Item href="/authentication/sign-in" icon={HiLogin}>
-                Sign in
-              </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
-                Sign up
-              </Sidebar.Item>
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
               <Sidebar.Item
