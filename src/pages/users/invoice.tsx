@@ -23,9 +23,10 @@ import {
     HiOutlinePencilAlt,
     HiPlus,
   HiPencilAlt,
-
+  HiOutlineBadgeCheck,
     HiTrash,
   } from "react-icons/hi";
+  import {GrDeliver} from "react-icons/gr"
   import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
   import axios from "axios";
   
@@ -193,27 +194,15 @@ const EditProductModal: FC = function () {
               </div>
               <div>
                 <Label htmlFor="status">Status</Label>
-                <Select id="countries" required >
-                      <option >Paid</option>
-                      <option >Failed</option>
-                  </Select>
+                <TextInput id="countries" className="mt-1"  placeholder="">
+                </TextInput>
               </div>
               <div>
                 <Label htmlFor="loyalty">Loyalty</Label>
-                <Select id="countries" required >
-                      <option >True</option>
-                      <option >False</option>
-                  </Select>
+                <TextInput id="countries" className="mt-1"  placeholder="">
+                  </TextInput>
               </div>
-              <div>
-                <Label htmlFor="price">Date</Label>
-                <TextInput
-                  id="price"
-                  name="price"
-                  placeholder=""
-                  className="mt-1"
-                />
-              </div>
+             
               <div>
                 <Label htmlFor="point">Point received</Label>
                 <TextInput
@@ -222,13 +211,22 @@ const EditProductModal: FC = function () {
                   className="mt-1"
                 />
               </div>
-       
+              <div className="col-span-2">
+                <Label htmlFor="price">Date</Label>
+                <TextInput
+                  id="price"
+                  name="price"
+                  placeholder=""
+                  className="mt-1"
+                />
+              </div>
         </div>
           </form>
         </Modal.Body>
         <Modal.Footer >
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-between">
 
+          <DeleteProductModal/>
           <Button color="primary" onClick={() => setOpen(!isOpen)} className="">
             Close
           </Button>
@@ -257,7 +255,7 @@ const DeleteProductModal: FC = function () {
           <div className="flex flex-col items-center gap-y-6 text-center">
             <HiOutlineExclamationCircle className="text-7xl text-red-600" />
             <p className="text-lg text-gray-500 dark:text-gray-300">
-              Are you sure you want to delete this product?
+              Are you sure you want to delete this invoice?
             </p>
             <div className="flex items-center gap-x-3">
               <Button color="failure" onClick={() => setOpen(false)}>
@@ -274,6 +272,54 @@ const DeleteProductModal: FC = function () {
   );
 
 }
+
+const DeliveryInvoice: FC = function () {
+  const [isOpen, setOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  
+  const handleConfirm = () => {
+    setOpen(false);
+    setToastMessage("Delivery success !!! ");
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+  
+  return (
+    <>
+      {toastMessage && (
+
+        <div className="fixed bottom-0 right-0 mb-4 mr-4 bg-green-500 text-white p-2 rounded">
+          {toastMessage}
+        </div>
+      )}
+      <Button className="bg-orange-500 hover:bg-orange-600" onClick={() => setOpen(!isOpen)}>
+        <GrDeliver className="mr-2 text-lg" />
+       Delivery
+      </Button>
+      <Modal onClose={() => setOpen(false)} show={isOpen} size="md">
+        <Modal.Header className="px-3 pt-3 pb-0">
+          <span className="sr-only">Delete product</span>
+        </Modal.Header>
+        <Modal.Body className="px-6 pb-6 pt-0">
+          <div className="flex flex-col items-center gap-y-6 text-center">
+            < HiOutlineBadgeCheck className="text-7xl text-orange-600" />
+            <p className="text-lg text-gray-500 dark:text-gray-300">
+            Do you want to deliver ? 
+            </p>
+            <div className="flex items-center gap-x-3">
+              <Button color="gray" onClick={() => setOpen(false)}>
+                No, cancel
+              </Button>
+              <Button className="bg-orange-500 hover:bg-orange-600" onClick={handleConfirm}>
+                Yes, I'm sure
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
+    </>
+  );
+}
+
   
   const AllUsersTable: FC = function () {
     const [users, setUsers] = useState<any | null>(null);
@@ -343,7 +389,7 @@ const DeleteProductModal: FC = function () {
               </Table.Cell>
               <Table.Cell className="whitespace-nowrap p-4 text-base font-normal text-gray-900 dark:text-white flex">
                  <EditProductModal  />
-                <DeleteProductModal />
+                  <DeliveryInvoice/>
               </Table.Cell>
           
             </Table.Row>
