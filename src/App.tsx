@@ -7,11 +7,12 @@ import SignInPage from "./pages/authentication/sign-in";
 import EcommerceProductsPage from "./pages/e-commerce/products";
 import UserListPage from "./pages/users/list";
 import InvoicePage from "./pages/users/invoice";
-import VoucherPage from "./pages/e-commerce/voucher"
-import RewardPage from "./pages/e-commerce/reward"
+import VoucherPage from "./pages/e-commerce/voucher";
+import RewardPage from "./pages/e-commerce/reward";
 
 import { AuthContext } from "./contexts/AdminAuthContext";
 import { useContext } from "react";
+import EcommerceCategoryPage from "./pages/e-commerce/category";
 function App() {
   const auth = useContext(AuthContext);
 
@@ -40,8 +41,11 @@ function App() {
           <Route path="/users/invoice" element={<InvoicePage />} />
           <Route path="/e-commerce/voucher" element={<VoucherPage />} />
           <Route path="/e-commerce/reward" element={<RewardPage />} />
+          <Route
+            path="/e-commerce/categories"
+            element={<EcommerceCategoryPage />}
+          />
 
-          
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
