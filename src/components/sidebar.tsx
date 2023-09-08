@@ -1,4 +1,4 @@
-import { Sidebar, TextInput } from "flowbite-react";
+import { Sidebar, TextInput ,Select,Dropdown} from "flowbite-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -12,6 +12,15 @@ import {
   HiShoppingBag,
   HiUsers,
 } from "react-icons/hi";
+import {
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+  Button,
+} from "@material-tailwind/react";
+import {FaFileInvoiceDollar,FaGifts} from "react-icons/fa"
+import {MdLoyalty} from "react-icons/md"
 import { Link } from "react-router-dom";
 
 const ExampleSidebar: FC = function () {
@@ -22,7 +31,7 @@ const ExampleSidebar: FC = function () {
 
     setCurrentPage(newPage);
   }, [setCurrentPage]);
-
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example">
       <div className="flex h-full flex-col justify-between py-2">
@@ -74,12 +83,74 @@ const ExampleSidebar: FC = function () {
                   User List
                 </Sidebar.Item>
               </Link>
-
-              <Sidebar.Item href="/authentication/sign-in" icon={HiLogin}>
-                Sign in
+              <Link to="/users/invoice">
+              <Sidebar.Item  icon={FaFileInvoiceDollar} className={
+                    "/users/invoice" === currentPage
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : ""
+                  }>
+                Invoices
               </Sidebar.Item>
-              <Sidebar.Item href="/authentication/sign-up" icon={HiPencil}>
-                Sign up
+              </Link>
+
+              <Sidebar.Item
+              icon={MdLoyalty}
+             
+            >
+   {/* <Dropdown label="Loyalty" className="dropdown-bg-white">
+      <Dropdown.Item >
+      <Link to="/e-commerce/voucher">Voucher</Link>
+      </Dropdown.Item>
+      <Dropdown.Item >
+      <Link to="/e-commerce/reward">Reward</Link>
+      </Dropdown.Item>
+    </Dropdown> */}
+<button
+  id="dropdownDefaultButton"
+  data-dropdown-toggle="dropdown"
+  className="w-[100%] text-gray font-medium rounded-lg text-[16px] text-center inline-flex items-center"
+  type="button"
+  onClick={() => setIsOpen(!isOpen)}
+>
+  Loyalty
+  <svg
+    className="w-2.5 h-2.5 ml-2.5"
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 10 6"
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="m1 1 4 4 4-4"
+    />
+  </svg>
+</button>
+{isOpen && (
+  <div style={{ position: 'absolute' }}>
+    <div
+      id="dropdown"
+      className="z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+    >
+      <ul
+        className="text-sm text-gray-700 dark:text-gray-200"
+        aria-labelledby="dropdownDefaultButton"
+      >
+        <li className="pt-2 hover:bg-gray-200 ">
+          <Link to="/e-commerce/voucher" className="mb-2 px-2 block w-[100%] ">Voucher</Link>
+        </li>
+        <li className=" hover:bg-gray-200">
+          <Link to="/e-commerce/reward" className="px-2 pb-2 block w-[100%] ">Reward</Link>
+        </li>
+      </ul>
+    </div>
+  </div>
+)}
+
+
               </Sidebar.Item>
             </Sidebar.ItemGroup>
             <Sidebar.ItemGroup>
