@@ -12,15 +12,9 @@ import {
   HiShoppingBag,
   HiUsers,
 } from "react-icons/hi";
-import {
-  Menu,
-  MenuHandler,
-  MenuList,
-  MenuItem,
-  Button,
-} from "@material-tailwind/react";
-import { FaFileInvoiceDollar, FaGifts } from "react-icons/fa";
-import { MdLoyalty } from "react-icons/md";
+
+import {FaFileInvoiceDollar,FaGifts} from "react-icons/fa"
+import {MdLoyalty} from "react-icons/md"
 import { Link } from "react-router-dom";
 
 const ExampleSidebar: FC = function () {
