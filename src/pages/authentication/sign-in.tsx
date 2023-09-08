@@ -14,7 +14,7 @@ const SignInPage: FC = function () {
   async function handleLoginSubmit(e: any) {
     e.preventDefault();
     try {
-      const user = await axios.post("/v1/auth/login", { email, password });
+      const user = await axios.post("/v1/auth/loginAdmin", { email, password });
       authContext.setUserInfo(user.data);
       console.log("login successful");
     } catch (e: any) {

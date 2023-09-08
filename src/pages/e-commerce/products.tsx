@@ -24,7 +24,9 @@ import {
   HiOutlineExclamationCircle,
   HiPencilAlt,
   HiTrash,
+  HiOutlineArrowUp,
   HiUpload,
+  HiX,
 } from "react-icons/hi";
 import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import { Pagination } from "../users/list";
@@ -157,16 +159,156 @@ const SearchForProducts: FC<Products> = ({ setProductDisplay, products }) => {
   );
 };
 
+type Category = {
+  _id: string;
+};
+
 const AddProductModal: FC = function () {
   const [isOpen, setOpen] = useState(false);
+  const [type, setType] = useState("Tarot");
+
+  const [productInfo, setProductInfo] = useState({
+    include: "",
+    ibsn: "",
+    type: "",
+    author: "",
+    producer: "",
+    stock: 1,
+    sold: 0,
+    price: 0,
+    describe: "",
+    category: [],
+    imageURLs: [],
+    name: "",
+  });
+  const [categories, setCategories] = useState<Category[] | null>(null);
+  const [allCategories, setAllCategories] = useState<any>(null);
+  const [errLog, setErrLog] = useState("");
+  const [file, setFile] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      async function fetchCategories() {
+        try {
+          const response = await axios.get(
+            `/v1/admin/allCategories/${type || "all"}`
+          );
+          setAllCategories(response.data);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      fetchCategories();
+      setCategories(null);
+    }
+  }, [isOpen, type]);
+
+  const handleRemoveImg = async (link) => {
+    const updatedIds = productInfo.imageURLs.filter((id) => id !== link);
+    setProductInfo((prev) => ({ ...prev, imageURLs: updatedIds }));
+  };
+
+  const handleRemoveCat = async (id) => {
+    const updated = categories.filter((cat) => cat._id !== id);
+    setCategories(updated);
+  };
+
+  function handleFiles(e) {
+    const files = e.target.files;
+    setFile(Array.from(files));
+  }
+
+  const handleAddCategory = (e) => {
+    const chosenCat = allCategories[e.target.value];
+    if (!categories) {
+      setCategories([chosenCat]);
+    } else {
+      const found = categories.find((cat) => cat._id == chosenCat._id);
+      if (!found) {
+        setCategories((prev) => [...prev, chosenCat]);
+      }
+    }
+  };
+
+  const uploadImagesToCloudinary = async (images) => {
+    setErrLog("clicked");
+
+    const uploadedUrls = [];
+
+    // Loop through the selected images
+    for (const image of images) {
+      const data = new FormData();
+      data.append("file", image);
+      data.append("upload_preset", "kdbr5ygr");
+      data.append("cloud_name", "difzzraqj");
+
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/difzzraqj/image/upload`,
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+        const res = await response.json();
+        console.log(res);
+        uploadedUrls.push(res.secure_url);
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      }
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleUpdateProduct = async (prod) => {
+    try {
+      if (!categories) {
+        setErrLog("chose at least 1 category");
+        return;
+      }
+      const catIds = categories.map((cat) => cat._id);
+
+      const uploadedUrls = await uploadImagesToCloudinary(file);
+
+      console.log("Uploaded URLs: ", uploadedUrls);
+
+      const updatedProductInfo = {
+        ...productInfo,
+        imageURLs: [...prod.imageURLs, ...uploadedUrls],
+        category: catIds,
+        type,
+      };
+
+      const response = await axios.post("/v1/admin/addProduct/", {
+        productInfo: updatedProductInfo,
+      });
+
+      if (response.data === "updated") {
+        setErrLog(response.data);
+      } else {
+        setErrLog("error");
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      setErrLog("error");
+    }
+  };
 
   return (
     <>
       <Button color="primary" onClick={() => setOpen(!isOpen)}>
-        <FaPlus className="mr-3 text-sm" />
-        Add product
+        <HiOutlineArrowUp className="mr-2 text-lg" />
+        Add item
       </Button>
-      <Modal onClose={() => setOpen(false)} show={isOpen}>
+      <Modal
+        onClose={() => {
+          // setProductInfo(product);
+          // setCategories(product.category);
+          setOpen(false);
+        }}
+        show={isOpen}
+      >
         <Modal.Header className="border-b border-gray-200 !p-6 dark:border-gray-700">
           <strong>Add product</strong>
         </Modal.Header>
@@ -178,26 +320,71 @@ const AddProductModal: FC = function () {
                 <TextInput
                   id="productName"
                   name="productName"
-                  placeholder='Apple iMac 27"'
                   className="mt-1"
+                  value={productInfo.name}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                 />
               </div>
+
               <div>
                 <Label htmlFor="category">Category</Label>
-                <TextInput
-                  id="category"
-                  name="category"
-                  placeholder="Electronics"
-                  className="mt-1"
-                />
+                <div className="max-w-md" id="select">
+                  <div className="mb-2 block">
+                    <Label htmlFor="countries" />
+                  </div>
+                  <Select id="countries" required onChange={handleAddCategory}>
+                    {allCategories?.map((cat, index) => (
+                      <option value={index}>{cat.categoryName}</option>
+                    ))}
+                  </Select>
+                  <div className="flex gap-1 flex-wrap">
+                    {categories?.map((cat) => (
+                      <>
+                        <Badge className="w-max cursor-pointer" color="indigo">
+                          {cat.categoryName}
+                        </Badge>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleRemoveCat(cat._id)}
+                        >
+                          <span className="sr-only">Delete</span>
+                          <HiX className="-ml-5 text-md text-red-600" />
+                        </div>
+                      </>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div>
-                <Label htmlFor="brand">Brand</Label>
+                <Label htmlFor="brand">Type</Label>
+                <Select
+                  id="countries"
+                  onChange={(e) => setType(e.target.value)}
+                  required
+                >
+                  <option value={"Tarot"}>Tarot</option>
+                  <option value={"Oracle"}>Oracle</option>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="author">Author</Label>
                 <TextInput
-                  id="brand"
-                  name="brand"
-                  placeholder="Apple"
+                  id="author"
+                  name="author"
+                  placeholder="Mc Anthur"
                   className="mt-1"
+                  value={productInfo.author}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      author: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
@@ -205,20 +392,54 @@ const AddProductModal: FC = function () {
                 <TextInput
                   id="price"
                   name="price"
-                  type="number"
-                  placeholder="$2300"
                   className="mt-1"
+                  type="number"
+                  value={productInfo.price}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      price: Number(e.target.value),
+                    }))
+                  }
                 />
               </div>
               <div className="lg:col-span-2">
-                <Label htmlFor="producTable.Celletails">Product details</Label>
+                <Label htmlFor="productDetails">Product details</Label>
                 <Textarea
-                  id="producTable.Celletails"
-                  name="producTable.Celletails"
+                  id="productDetails"
+                  name="productDetails"
                   placeholder="e.g. 3.8GHz 8-core 10th-generation Intel Core i7 processor, Turbo Boost up to 5.0GHz, Ram 16 GB DDR4 2300Mhz"
                   rows={6}
                   className="mt-1"
+                  value={productInfo.describe}
+                  onChange={(e) =>
+                    setProductInfo((prev) => ({
+                      ...prev,
+                      describe: e.target.value,
+                    }))
+                  }
                 />
+              </div>
+              <div className="flex justify-between">
+                {productInfo.imageURLs.map((imglink) => (
+                  <div>
+                    <img
+                      alt="Apple iMac 1"
+                      src={imglink}
+                      className="w-25 h-16 rounded-lg border  object-cover"
+                    />
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => handleRemoveImg(imglink)}
+                    >
+                      <span className="sr-only">Delete</span>
+                      <HiTrash className="-mt-5 text-2xl text-red-600" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col-reverse">
+                <h1>to upload : {file.length} files chosen</h1>
               </div>
               <div className="lg:col-span-2">
                 <div className="flex w-full items-center justify-center">
@@ -232,7 +453,12 @@ const AddProductModal: FC = function () {
                         PNG, JPG, GIF up to 10MB
                       </p>
                     </div>
-                    <input type="file" className="hidden" />
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={handleFiles}
+                      multiple
+                    />
                   </label>
                 </div>
               </div>
@@ -240,9 +466,17 @@ const AddProductModal: FC = function () {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <Button color="primary" onClick={() => setOpen(false)}>
-            Add product
+          <Button
+            color="primary"
+            onClick={() => handleUpdateProduct(productInfo)}
+          >
+            Save all
           </Button>
+          {errLog == "clicked" ? (
+            <Spinner aria-label="Default status example" />
+          ) : (
+            <h1 className="text-red-400 text-sm">{errLog}</h1>
+          )}
         </Modal.Footer>
       </Modal>
     </>
@@ -356,6 +590,11 @@ const EditProductModal: FC<any> = function ({ product }) {
     setProductInfo((prev) => ({ ...prev, imageURLs: updatedIds }));
   };
 
+  const handleRemoveCat = async (id) => {
+    const updated = categories.filter((cat) => cat._id !== id);
+    setCategories(updated);
+  };
+
   useEffect(() => {
     if (isOpen) {
       console.log("change:", categories);
@@ -410,9 +649,18 @@ const EditProductModal: FC<any> = function ({ product }) {
                   </Select>
                   <div className="flex gap-1 flex-wrap">
                     {categories?.map((cat) => (
-                      <Badge className="w-max" color="indigo">
-                        {cat.categoryName}
-                      </Badge>
+                      <>
+                        <Badge className="w-max cursor-pointer" color="indigo">
+                          {cat.categoryName}
+                        </Badge>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleRemoveCat(cat._id)}
+                        >
+                          <span className="sr-only">Delete</span>
+                          <HiX className="-ml-5 text-md text-red-600" />
+                        </div>
+                      </>
                     ))}
                   </div>
                 </div>
@@ -529,9 +777,19 @@ const EditProductModal: FC<any> = function ({ product }) {
   );
 };
 
-const DeleteProductModal: FC = function () {
+const DeleteProductModal: FC<any> = function ({ product }) {
   const [isOpen, setOpen] = useState(false);
 
+  const handleDeleteProduct = async (productId) => {
+    console.log(productId);
+    try {
+      await axios.post(`/v1/admin/deleteProduct/${productId}`);
+
+      console.log("deleted");
+    } catch (error) {
+      console.error("Error delete product:", error);
+    }
+  };
   return (
     <>
       <Button color="failure" onClick={() => setOpen(!isOpen)}>
@@ -549,7 +807,13 @@ const DeleteProductModal: FC = function () {
               Are you sure you want to delete this product?
             </p>
             <div className="flex items-center gap-x-3">
-              <Button color="failure" onClick={() => setOpen(false)}>
+              <Button
+                color="failure"
+                onClick={() => {
+                  handleDeleteProduct(product._id);
+                  setOpen(false);
+                }}
+              >
                 Yes, I'm sure
               </Button>
               <Button color="gray" onClick={() => setOpen(false)}>
@@ -604,7 +868,7 @@ const ProductsTable: FC<Products> = function ({ productDisplay }) {
             <Table.Cell className="space-x-2 whitespace-nowrap p-4">
               <div className="flex items-center gap-x-3">
                 <EditProductModal product={product} />
-                <DeleteProductModal />
+                <DeleteProductModal product={product} />
               </div>
             </Table.Cell>
           </Table.Row>
