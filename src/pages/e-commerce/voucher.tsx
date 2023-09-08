@@ -24,9 +24,10 @@ import NavbarSidebarLayout from "../../layouts/navbar-sidebar";
 import axios from "axios";
 
 const VoucherPage: FC = function () {
-  const [productDisplay, setProductDisplay] = useState<any | null>(null);
   const [vouchers, setVouchers] = useState<any | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [voucherInfo, setVoucherInfo] = useState<any | null>(null);
+  const [err, setErr] = useState<any | null>("");
 
   useEffect(() => {
     async function fetchVouchers() {
@@ -39,6 +40,26 @@ const VoucherPage: FC = function () {
     }
     fetchVouchers();
   }, []);
+
+  const handleEditVoucher = async (voucherinfo) => {
+    try {
+      await axios.post(`/v1/admin/updateVoucher/${voucherinfo._id}`, {
+        voucherInfo: voucherinfo,
+      });
+      setErr("edited");
+    } catch (error) {
+      console.error("Error delivery product:", error);
+    }
+  };
+
+  const handleRemove = async (voucherinfo) => {
+    try {
+      await axios.post(`/v1/admin/removeVoucher/${voucherinfo._id}`);
+      setErr("removed");
+    } catch (error) {
+      console.error("Error delivery product:", error);
+    }
+  };
 
   return (
     <NavbarSidebarLayout isFooter={false}>
@@ -74,15 +95,18 @@ const VoucherPage: FC = function () {
             <p>Voucher details</p>
           </h5>
 
-          {/* Add the dropdown here */}
-          <Select onChange={(e) => setSelectedItem(e.target.value)}>
+          <Select
+            onChange={(e) => {
+              setSelectedItem(e.target.value);
+              setVoucherInfo(vouchers[e.target.value]);
+            }}
+          >
             <option value="">Select voucher</option>
-            {vouchers?.map((voucher) => (
-              <option value={voucher}>{voucher.title}</option>
+            {vouchers?.map((voucher, index) => (
+              <option value={index}>{voucher.title}</option>
             ))}
           </Select>
 
-          {/* Only show the inputs if an item is selected */}
           {selectedItem && (
             <>
               <div>
@@ -91,45 +115,51 @@ const VoucherPage: FC = function () {
                   id="brand"
                   name="brand"
                   placeholder=""
-                  value={selectedItem.title}
-                  // onChange={(e) => setVoucherName(e.target.value)}
+                  value={voucherInfo?.title}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="point">Total Point</Label>
+                <Label htmlFor="Value">Voucher Value</Label>
                 <TextInput
-                  id="brand"
-                  name="brand"
+                  id="Value"
+                  name="Value"
                   placeholder=""
-                  // value={voucherPoint}
-                  // onChange={(e) => setVoucherPoint(e.target.value)}
+                  value={voucherInfo?.value}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      value: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <div>
-                <Label htmlFor="Expired">Short Code</Label>
+                <Label htmlFor="Point">Total Point</Label>
                 <TextInput
-                  id="brand"
-                  name="brand"
+                  id="Point"
+                  name="Point"
                   placeholder=""
-                  // value={voucherCode}
-                  // onChange={(e) => setVoucherCode(e.target.value)}
+                  value={voucherInfo?.points}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      points: e.target.value,
+                    }))
+                  }
                 />
               </div>
-              <div>
-                <p>Voucher Image</p>
-                <Label className="flex h-32 w-full cursor-pointer flex-col rounded border-2 border-dashed border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <HiUpload className="text-4xl text-gray-300" />
-                    <p className="py-1 text-sm text-gray-600 dark:text-gray-500">
-                      Upload a file or drag and drop
-                    </p>
-                  </div>
-                  <input type="file" className="hidden" multiple />
-                </Label>
-              </div>
-
-              <Button>
+              {err && <h1 className="text-red-400">{err}</h1>}
+              <Button onClick={() => handleEditVoucher(voucherInfo)}>
                 <p>Edit voucher</p>
+              </Button>
+              <Button color="failure" onClick={() => handleRemove(voucherInfo)}>
+                <p>Remove voucher</p>
               </Button>
             </>
           )}
@@ -141,6 +171,26 @@ const VoucherPage: FC = function () {
 
 const AddProductModal: FC = function () {
   const [isOpen, setOpen] = useState(false);
+  const [err, setErr] = useState("");
+
+  const [voucherInfo, setVoucherInfo] = useState<any | null>({
+    title: "",
+    value: 0.1,
+    points: 100,
+    image:
+      "https://cdn.pixabay.com/photo/2020/03/02/18/23/coffee-4896485_1280.jpg",
+  });
+
+  const handleEditVoucher = async (voucherinfo) => {
+    try {
+      await axios.post(`/v1/admin/createVoucher`, {
+        voucherInfo: voucherinfo,
+      });
+      setErr("created");
+    } catch (error) {
+      console.error("Error delivery product:", error);
+    }
+  };
 
   return (
     <>
@@ -157,35 +207,61 @@ const AddProductModal: FC = function () {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div>
                 <Label htmlFor="total">Voucher Name</Label>
-                <TextInput id="brand" name="brand" placeholder="" />
+                <TextInput
+                  id="brand"
+                  name="brand"
+                  placeholder=""
+                  value={voucherInfo.title}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                />
               </div>
               <div>
                 <Label htmlFor="status">Total Point</Label>
-                <TextInput id="brand" name="brand" placeholder="" />
+                <TextInput
+                  id="brand"
+                  name="brand"
+                  placeholder=""
+                  value={voucherInfo.points}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      points: e.target.value,
+                    }))
+                  }
+                />
               </div>
               <div className="col-span-2">
-                <Label htmlFor="point">Short Code</Label>
-                <TextInput id="brand" name="brand" placeholder="" />
+                <Label htmlFor="point">Value</Label>
+                <TextInput
+                  id="brand"
+                  name="brand"
+                  placeholder=""
+                  value={voucherInfo.value}
+                  onChange={(e) =>
+                    setVoucherInfo((prev) => ({
+                      ...prev,
+                      value: e.target.value,
+                    }))
+                  }
+                />
               </div>
-            </div>
-
-            <div>
-              <p className="my-2">Reward Image</p>
-              <Label className="flex h-32 w-full cursor-pointer flex-col rounded border-2 border-dashed border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-700">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <HiUpload className="text-4xl text-gray-300" />
-                  <p className="py-1 text-sm text-gray-600 dark:text-gray-500">
-                    Upload a file or drag and drop
-                  </p>
-                </div>
-                <input type="file" className="hidden" multiple />
-              </Label>
             </div>
           </form>
         </Modal.Body>
         <Modal.Footer>
-          <div className="w-full flex justify-end">
-            <Button color="primary" onClick={() => setOpen(false)}>
+          <div className="w-full flex justify-between">
+            {err && <h1 className="text-red-400 ">{err}</h1>}
+            <Button
+              color="primary"
+              onClick={() => {
+                handleEditVoucher(voucherInfo);
+              }}
+            >
               Add voucher
             </Button>
           </div>
