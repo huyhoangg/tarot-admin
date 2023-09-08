@@ -529,6 +529,28 @@ const EditProductModal: FC<any> = function ({ product }) {
   );
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const DeleteProductModal: FC = function () {
   const [isOpen, setOpen] = useState(false);
 

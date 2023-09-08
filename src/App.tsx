@@ -6,9 +6,12 @@ import DashboardPage from "./pages";
 import SignInPage from "./pages/authentication/sign-in";
 import EcommerceProductsPage from "./pages/e-commerce/products";
 import UserListPage from "./pages/users/list";
+import InvoicePage from "./pages/users/invoice";
+import VoucherPage from "./pages/e-commerce/voucher"
+import RewardPage from "./pages/e-commerce/reward"
+
 import { AuthContext } from "./contexts/AdminAuthContext";
 import { useContext } from "react";
-
 function App() {
   const auth = useContext(AuthContext);
 
@@ -34,6 +37,11 @@ function App() {
             element={userInfo ? <EcommerceProductsPage /> : <SignInPage />}
           />
           <Route path="/users/list" element={<UserListPage />} />
+          <Route path="/users/invoice" element={<InvoicePage />} />
+          <Route path="/e-commerce/voucher" element={<VoucherPage />} />
+          <Route path="/e-commerce/reward" element={<RewardPage />} />
+
+          
           <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
