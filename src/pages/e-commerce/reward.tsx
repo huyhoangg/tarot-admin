@@ -77,10 +77,10 @@ import {
                 <Breadcrumb.Item href="/e-commerce/products">
                   E-commerce
                 </Breadcrumb.Item>
-                <Breadcrumb.Item>Voucher</Breadcrumb.Item>
+                <Breadcrumb.Item>rewards</Breadcrumb.Item>
               </Breadcrumb>
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
-                All vouchers
+                All rewards
               </h1>
             </div>
             <div className="block items-center sm:flex">
@@ -126,7 +126,7 @@ import {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center h-[745px]">
        
         <Card className="w-[400px] ">
   <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
