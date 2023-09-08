@@ -1,4 +1,4 @@
-import { Sidebar, TextInput } from "flowbite-react";
+import { Sidebar, TextInput ,Select} from "flowbite-react";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import {
@@ -92,13 +92,14 @@ const ExampleSidebar: FC = function () {
              
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              Loyalty
-              {dropdownOpen && (
-                <ul>
-                <Sidebar.Item><Link to="/e-commerce/voucher"> Voucher </Link></Sidebar.Item>
-                <Sidebar.Item><Link to="/e-commerce/reward">Reward</Link></Sidebar.Item>
-                </ul>
-              )}
+                Loyalty
+                {dropdownOpen && (
+                  <ul>
+                  <Sidebar.Item><Link to="/e-commerce/voucher"> Voucher </Link></Sidebar.Item>
+                  <Sidebar.Item><Link to="/e-commerce/reward">Reward</Link></Sidebar.Item>
+                  </ul>
+                )}
+
             </Sidebar.Item>
 
             </Sidebar.ItemGroup>
