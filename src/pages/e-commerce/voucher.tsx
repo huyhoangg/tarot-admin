@@ -148,15 +148,15 @@ import {
           <>
             <div>
               <Label htmlFor="total">Voucher Name</Label>
-              <TextInput id="brand" name="brand" placeholder="" />
+              <TextInput id="brand" name="brand" placeholder="" value={voucherName}  onChange={(e) => setVoucherName(e.target.value)}/>
             </div>
             <div>
               <Label htmlFor="point">Total Point</Label>
-              <TextInput id="brand" name="brand" placeholder=""  />
+              <TextInput id="brand" name="brand" placeholder="" value={voucherPoint}  onChange={(e) => setVoucherPoint(e.target.value)} />
             </div>
             <div>
               <Label htmlFor="Expired">Short Code</Label>
-              <TextInput id="brand" name="brand" placeholder="" />
+              <TextInput id="brand" name="brand" placeholder="" value={voucherCode}  onChange={(e) => setVoucherCode(e.target.value)}/>
             </div>
             <div>
               <p>Voucher Image</p>
@@ -227,15 +227,15 @@ const SearchForProducts: FC<Products> = ({ setProductDisplay, products }) => {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div>
                 <Label htmlFor="total">Voucher Name</Label>
-                <TextInput id="brand" name="brand" placeholder="" />
+                <TextInput id="brand" name="brand" placeholder=""   />
               </div>
               <div>
                 <Label htmlFor="status">Total Point</Label>
-                <TextInput id="brand" name="brand" placeholder=""/>
+                <TextInput id="brand" name="brand" placeholder="" />
               </div>
               <div className="col-span-2">
                 <Label htmlFor="point">Short Code</Label>
-                <TextInput id="brand" name="brand" placeholder=""/>
+                <TextInput id="brand" name="brand" placeholder=""  />
               </div>
             </div>
 

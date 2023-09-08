@@ -145,19 +145,19 @@ import {
     <>
       <div>
         <Label htmlFor="total">Reward Name</Label>
-        <TextInput id="brand" name="brand" placeholder=""  onChange={(e) => setRewardName(e.target.value)}/>
+        <TextInput id="brand" name="brand" value={rewardName} placeholder=""   onChange={(e) => setRewardName(e.target.value)}/>
       </div>
       <div>
         <Label htmlFor="status">Reward Status</Label>
-        <TextInput id="brand" name="brand" placeholder=""onChange={(e) => setRewardStatus(e.target.value)} />
+        <TextInput id="brand" name="brand" placeholder="" value={rewardStatus} onChange={(e) => setRewardStatus(e.target.value)} />
       </div>
       <div>
         <Label htmlFor="point">Orders Point</Label>
-        <TextInput id="brand" name="brand" placeholder=""onChange={(e) => setOrdersPoint(e.target.value)}  />
+        <TextInput id="brand" name="brand" placeholder=""value={ordersPoint} onChange={(e) => setOrdersPoint(e.target.value)}  />
       </div>
       <div>
         <Label htmlFor="Expired">Expired Date</Label>
-        <TextInput id="brand" name="brand" placeholder="" onChange={(e) => setExpiredDate(e.target.value)}/>
+        <TextInput id="brand" name="brand" placeholder=""value={expiredDate}  onChange={(e) => setExpiredDate(e.target.value) }/>
       </div>
       <div>
         <p>Reward Image</p>
