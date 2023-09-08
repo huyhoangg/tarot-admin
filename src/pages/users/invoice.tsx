@@ -283,7 +283,7 @@ const AllUsersTable: FC = function () {
             </Table.Cell>
             <Table.Cell className="whitespace-nowrap p-4 gap-4 text-base font-normal text-gray-900 dark:text-white flex">
               <EditProductModal order={order} />
-              <DeliveryInvoice order={order} />
+              {order.delivery ? <h1 className="text-orange-600 flex justify-center items-center">delivered</h1> :<DeliveryInvoice order={order} />}
             </Table.Cell>
           </Table.Row>
         ))}
